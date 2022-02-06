@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "project-firebase-notifee",
+    "slug": "project-firebase-notifee",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "project-firebase-notifee"
+}

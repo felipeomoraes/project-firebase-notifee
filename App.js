@@ -1,22 +1,51 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React , { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 import notifee from '@notifee/react-native';
 
+import messaging from '@react-native-firebase/messaging';
+
 export default function App() {
 
-  async function onDisplayNotification() {
+  const [token, setToken] = useState('');
+
+  useEffect(() => {
+    messaging().getToken()
+      .then(theToken => {
+        setToken(theToken);
+        console.log('Token:', theToken);
+      })
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      onDisplayNotification(remoteMessage.notification);
+      console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    });
+
+    return unsubscribe;
+  }, []);
+
+
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    // onDisplayNotification(remoteMessage.notification);
+    // console.log('Message handled in the background!', JSON.stringify(remoteMessage));
+  });
+
+  async function onDisplayNotification(notification) {
     // Create a channel
     const channelId = await notifee.createChannel({
       id: 'default',
       name: 'Default Channel',
     });
 
+    requestUserPermission()
+
     // Display a notification
     await notifee.displayNotification({
-      title: 'Notification Title',
-      body: 'Main body content of the notification',
+      title: notification.title,
+      body: notification.body,
       android: {
         channelId,
         smallIcon: 'ic_launcher', // optional, defaults to 'ic_launcher'.
@@ -24,13 +53,22 @@ export default function App() {
     });
   }
 
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      <Text>Teste Notifee</Text>
-      <TouchableOpacity style={styles.btn} onPress={() => onDisplayNotification()}>
-        <Text style={styles.text}>Clique aqui</Text>
-      </TouchableOpacity>
+      <Text style={styles.text}>TOKEN FIREBASE</Text>
+      <Text style={{ margin: 20 }}>{token}</Text>
     </View>
   );
 }
@@ -52,6 +90,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 32,
-    color: '#fff'
+    fontWeight: 'bold',
+    margin: 10
   }
 });

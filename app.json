@@ -1,11 +1,19 @@
 {
   "expo": {
-    "name": "project-firebase-notifee",
+    "name": "Project Firebase Notifee",
     "slug": "project-firebase-notifee",
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "ios": {
+      "bundleIdentifier": "project-firebase-notifee",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "package": "project-firebase-notifee",
+      "versionCode": 1
+    }
   },
   "name": "project-firebase-notifee"
 }
